@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -89,13 +89,13 @@ function HomePage() {
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            <button className="rounded-xl px-4 py-2 font-medium text-slate-700 hover:bg-slate-100">
+            <Link to="/login" className="rounded-xl px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-100">
               Entrar
-            </button>
+            </Link>
 
-            <button className="rounded-xl bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700">
+            <Link to="/cadastro" className="rounded-xl bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700">
               Cadastrar
-            </button>
+            </Link>
           </div>
 
           <button className="rounded-lg p-2 text-slate-700 md:hidden">
@@ -319,10 +319,10 @@ function HomePage() {
                 </p>
               </div>
 
-              <button className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-medium text-blue-600 transition hover:bg-blue-50">
+              <Link to="/cadastro" className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-medium text-blue-600 transition hover:bg-blue-50">
                 Quero me cadastrar
                 <ArrowRight size={18} />
-              </button>
+              </Link>
             </div>
           </div>
         </section>
