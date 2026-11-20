@@ -7,14 +7,12 @@ import {
   Star,
   ShieldCheck,
   Clock,
-  Wrench,
   Zap,
   Paintbrush,
   Droplets,
   Laptop,
   Scissors,
   Hammer,
-  UserRound,
 } from "lucide-react";
 
 const categories = [
