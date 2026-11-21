@@ -5,6 +5,7 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import ClientDashboard from "../pages/client/ClientDashboard";
+import ProfessionalProfilePage from "../pages/provider/ProfessionalProfilePage";
 
 function AppRoutes() {
   return (
@@ -16,19 +17,8 @@ function AppRoutes() {
         <Route path="/cliente" element={<ClientDashboard />} />
 
         <Route
-          path="*"
-          element={
-            <div className="flex min-h-screen items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-3xl font-bold">
-                  Página não encontrada
-                </h1>
-                <a href="/" className="mt-4 inline-block text-blue-600">
-                  Voltar ao início
-                </a>
-              </div>
-            </div>
-          }
+          path="/profissional/:id"
+          element={<ProfessionalProfilePage />}
         />
       </Routes>
     </BrowserRouter>

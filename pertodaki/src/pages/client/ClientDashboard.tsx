@@ -1,47 +1,55 @@
-import ThemeToggle from "../../components/ui/ThemeToggle";
+
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import {
-  MapPin,
   Search,
-  Home,
-  Compass,
-  ClipboardList,
+  MapPin,
+  Star,
   Heart,
+  Home,
+  ClipboardList,
   Settings,
-  Bell,
   Menu,
   X,
-  Star,
-  SlidersHorizontal,
   ArrowRight,
-  Wrench,
+  Bell,
+  SlidersHorizontal,
   Zap,
   Droplets,
   Paintbrush,
   Laptop,
   Trees,
+  Wrench,
   LogOut,
   UserRound,
 } from "lucide-react";
 
+import { Link } from "react-router-dom";
 import { professionals } from "../../data/professionals";
+import ThemeToggle from "../../components/ui/ThemeToggle";
 
 const categories = [
-  { name: "Todos", icon: Compass },
+  { name: "Todos", icon: Home },
   { name: "Eletricista", icon: Zap },
   { name: "Encanador", icon: Droplets },
   { name: "Pintor", icon: Paintbrush },
   { name: "Informática", icon: Laptop },
-  { name: "Reparos", icon: Wrench },
   { name: "Jardinagem", icon: Trees },
+  { name: "Reparos", icon: Wrench },
 ];
 
 function ClientDashboard() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [favorites, setFavorites] = useState<number[]>(() => {
+  const savedFavorites = localStorage.getItem("pertodaki_favorites");
+
+  try {
+    return savedFavorites ? JSON.parse(savedFavorites) : [];
+  } catch {
+    return [];
+  }
+});
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const filteredProfessionals = useMemo(() => {
     return professionals.filter((professional) => {
@@ -49,428 +57,736 @@ function ClientDashboard() {
         selectedCategory === "Todos" ||
         professional.category === selectedCategory;
 
-      const searchText = search.toLowerCase();
+      const searchText = search.toLowerCase().trim();
 
       const matchesSearch =
         professional.name.toLowerCase().includes(searchText) ||
         professional.profession.toLowerCase().includes(searchText) ||
-        professional.description.toLowerCase().includes(searchText);
+        professional.description.toLowerCase().includes(searchText) ||
+        professional.category.toLowerCase().includes(searchText);
 
       return matchesCategory && matchesSearch;
     });
   }, [search, selectedCategory]);
 
-  function toggleFavorite(id: number) {
-    setFavorites((current) =>
-      current.includes(id)
-        ? current.filter((favoriteId) => favoriteId !== id)
-        : [...current, id]
-    );
-  }
+  const toggleFavorite = (id: number) => {
+  setFavorites((currentFavorites) => {
+    const updatedFavorites = currentFavorites.includes(id)
+      ? currentFavorites.filter((favorite) => favorite !== id)
+      : [...currentFavorites, id];
 
-  const navigation = [
-    { name: "Início", icon: Home, active: true, href: "/cliente" },
-    { name: "Explorar", icon: Compass, active: false, href: "/cliente" },
-    { name: "Solicitações", icon: ClipboardList, active: false, href: "/cliente/solicitacoes" },
-    { name: "Favoritos", icon: Heart, active: false, href: "/cliente/favoritos" },
-    { name: "Configurações", icon: Settings, active: false, href: "/cliente/configuracoes" },
-  ];
+    localStorage.setItem(
+      "pertodaki_favorites",
+      JSON.stringify(updatedFavorites),
+    );
+
+    return updatedFavorites;
+  });
+};
+
+  const favoriteProfessionals = professionals.filter((professional) =>
+    favorites.includes(professional.id),
+  );
+
+  const availableProfessionals = professionals.filter(
+    (professional) => professional.available,
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <button
-          aria-label="Fechar menu"
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden cursor-pointer"
-        />
+
+      {/* MOBILE SIDEBAR OVERLAY */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+
+          <aside className="relative flex w-72 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-200 p-5 dark:border-slate-800">
+              <Link to="/" className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
+                  <MapPin size={22} />
+                </div>
+
+                <span className="text-xl font-bold">
+                  Perto<span className="text-blue-600">Daki</span>
+                </span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(false)}
+                className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label="Fechar menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <SidebarContent />
+          </aside>
+        </div>
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 dark:border-slate-800 bg-white transition-transform duration-300 lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex h-20 items-center justify-between border-b border-slate-100 px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
-              <MapPin size={23} />
-            </div>
-            <span className="text-xl font-bold text-slate-900 cursor-pointer">
-              Perto<span className="text-blue-600">Daki</span>
-            </span>
-          </Link>
+      <div className="flex min-h-screen">
 
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden cursor-pointer"
-            aria-label="Fechar menu"
-          >
-            <X size={21} />
-          </button>
-        </div>
+        {/* DESKTOP SIDEBAR */}
+        <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white transition-colors dark:border-slate-800 dark:bg-slate-900 md:flex md:flex-col">
 
-        <div className="border-b border-slate-100 p-5">
-          <div className="flex items-center gap-3 rounded-2xl bg-blue-50 p-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 text-white">
-              <UserRound size={22} />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate font-semibold text-slate-900 dark:text-slate-white">
-                Olá, visitante!
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Área do cliente</p>
-            </div>
+          {/* LOGO */}
+          <div className="border-b border-slate-200 p-6 dark:border-slate-800">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white">
+                <MapPin size={24} />
+              </div>
+
+              <span className="text-xl font-bold tracking-tight">
+                Perto<span className="text-blue-600">Daki</span>
+              </span>
+            </Link>
           </div>
-        </div>
 
-        <nav className="flex-1 space-y-2 p-5">
-          <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Menu principal
-          </p>
+          <SidebarContent />
+        </aside>
 
-          {navigation.map((item) => {
-            const Icon = item.icon;
+        {/* MAIN CONTENT */}
+        <main className="min-w-0 flex-1">
 
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition cursor-pointer ${
-                  item.active
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-blue-600"
-                }`}
-              >
-                <Icon size={19} />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
+          {/* HEADER */}
+          <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/95">
+            <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
 
-        <div className="border-t border-slate-100 p-5">
-          <Link
-            to="/"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition hover:bg-red-50 hover:text-red-600 cursor-pointer"
-          >
-            <LogOut size={19} />
-            Voltar ao início
-          </Link>
-        </div>
-      </aside>
+              <div className="flex min-w-0 items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300 md:hidden"
+                  aria-label="Abrir menu"
+                >
+                  <Menu size={20} />
+                </button>
 
-      {/* Main */}
-      <div className="min-h-screen lg:pl-72">
-        {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/95 px-5 backdrop-blur sm:px-8">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="rounded-xl p-2 text-slate-600 hover:bg-slate-100 lg:hidden cursor-pointer"
-              aria-label="Abrir menu"
+                <div className="min-w-0">
+                  <p className="hidden text-sm text-slate-500 dark:text-slate-400 sm:block">
+                    Área do cliente
+                  </p>
+
+                  <h1 className="truncate text-lg font-bold sm:text-xl">
+                    Meu painel
+                  </h1>
+                </div>
+              </div>
+
+              {/* HEADER ACTIONS */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                <ThemeToggle />
+
+                <button
+                  type="button"
+                  aria-label="Notificações"
+                  className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  <Bell size={19} />
+
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-600" />
+                </button>
+
+                <div className="hidden items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-800 sm:flex">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                    <UserRound size={20} />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold">
+                      Cliente
+                    </p>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Minha conta
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* DASHBOARD BODY */}
+          <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-6 lg:p-8">
+
+            {/* WELCOME */}
+            <section className="relative overflow-hidden rounded-3xl bg-blue-600 p-6 text-white sm:p-8 lg:p-10">
+              <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10" />
+
+              <div className="absolute -bottom-20 right-40 h-48 w-48 rounded-full bg-white/10" />
+
+              <div className="relative z-10 max-w-2xl">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm text-blue-50">
+                  <MapPin size={15} />
+                  Sua comunidade, mais próxima
+                </span>
+
+                <h2 className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
+                  Olá! Seja bem-vindo ao PertoDaki.
+                </h2>
+
+                <p className="mt-4 max-w-xl leading-relaxed text-blue-100">
+                  Encontre profissionais perto de você e
+                  simplifique a resolução dos seus problemas
+                  do dia a dia.
+                </p>
+
+                <a
+                  href="#explorar"
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 font-semibold text-blue-600 transition hover:bg-blue-50"
+                >
+                  Encontrar profissionais
+                  <ArrowRight size={18} />
+                </a>
+              </div>
+            </section>
+
+            {/* STATS */}
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+              <StatCard
+                title="Profissionais"
+                value={String(professionals.length)}
+                description="Cadastrados na plataforma"
+                icon={<UserRound size={22} />}
+              />
+
+              <StatCard
+                title="Disponíveis"
+                value={String(availableProfessionals.length)}
+                description="Disponíveis nos dados demonstrativos"
+                icon={<Zap size={22} />}
+              />
+
+              <StatCard
+                title="Favoritos"
+                value={String(favorites.length)}
+                description="Profissionais salvos por você"
+                icon={<Heart size={22} />}
+              />
+            </section>
+
+            {/* SEARCH */}
+            <section
+              id="explorar"
+              className="scroll-mt-24"
             >
-              <Menu size={23} />
-            </button>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold tracking-tight">
+                  Encontre um profissional
+                </h2>
 
-            <div>
-              <p className="text-sm font-semibold text-slate-800">
-                Painel do cliente
-              </p>
-              <p className="hidden text-xs text-slate-400 sm:block">
-                Encontre serviços perto de você
-              </p>
-            </div>
-          </div>
+                <p className="mt-2 text-slate-600 dark:text-slate-400">
+                  Pesquise por serviço, nome ou categoria.
+                </p>
+              </div>
 
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              aria-label="Notificações"
-              className="relative rounded-xl border border-slate-200 dark:border-slate-800 p-2.5 text-slate-500 hover:bg-slate-50 cursor-pointer"
-              onClick={() => alert("Notificações estarão disponíveis futuramente.")}
-            >
-              <Bell size={19} />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-600" />
-            </button>
-
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-700">
-              V
-            </div>
-          </div>
-        </header>
-
-        <main className="mx-auto max-w-7xl space-y-8 px-5 py-8 sm:px-8">
-          {/* Welcome */}
-          <section>
-            <p className="font-medium text-blue-600">PertoDaki</p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-              Encontre o profissional ideal
-            </h1>
-            <p className="mt-2 text-slate-500 dark:text-slate-400">
-              Descubra profissionais e serviços para facilitar seu dia a dia.
-            </p>
-          </section>
-
-          {/* Search banner */}
-          <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white shadow-sm sm:p-9">
-            <div className="max-w-2xl">
-              <h2 className="text-2xl font-bold sm:text-3xl">
-                Do que você precisa hoje?
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-blue-100 sm:text-base">
-                Pesquise um serviço ou escolha uma categoria para encontrar profissionais.
-              </p>
-
-              <div className="mt-6 flex flex-col gap-3 rounded-2xl bg-white p-2 sm:flex-row border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:placeholder:text-slate-500">
+              <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 transition-colors dark:border-slate-800 dark:bg-slate-900 sm:flex-row">
                 <div className="flex flex-1 items-center gap-3 px-3">
-                  <Search size={21} className="shrink-0 text-slate-400 cursor-pointer" />
+                  <Search
+                    size={20}
+                    className="shrink-0 text-slate-400"
+                  />
+
                   <input
-                    type="search"
+                    type="text"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Ex.: eletricista, encanador..."
-                    className="w-full min-w-0 py-3 text-sm text-slate-800 dark:text-white outline-none placeholder:text-slate-400"
+                    placeholder="Ex: eletricista, pintura, Carlos..."
+                    className="w-full bg-transparent py-3 text-sm outline-none placeholder:text-slate-400"
                   />
                 </div>
 
                 <button
-                  onClick={() => {
-                    document
-                      .getElementById("professionals")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+                  type="button"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
                 >
-                  Buscar profissionais
-                  <ArrowRight size={17} />
+                  <Search size={18} />
+                  Pesquisar
                 </button>
               </div>
+            </section>
 
-              <div className="mt-4 flex items-center gap-2 text-sm text-blue-100">
-                <MapPin size={16} />
-                <span>Localização demonstrativa</span>
-              </div>
-            </div>
-          </section>
+            {/* CATEGORIES */}
+            <section>
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-bold">
+                    Categorias
+                  </h2>
 
-          {/* Statistics */}
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white p-5 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500 dark:text-slate-400">Profissionais</span>
-                <Compass className="text-blue-600" size={21} />
-              </div>
-              <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
-                {professionals.length}
-              </p>
-              <p className="mt-1 text-xs text-slate-400">Perfis demonstrativos</p>
-            </div>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Escolha o tipo de serviço.
+                  </p>
+                </div>
 
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white p-5 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500 dark:text-slate-400">Favoritos</span>
-                <Heart className="text-rose-500" size={21} />
-              </div>
-              <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
-                {favorites.length}
-              </p>
-              <p className="mt-1 text-xs text-slate-400">Salvos nesta sessão</p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white p-5 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500 dark:text-slate-400">Disponíveis</span>
-                <UserRound className="text-emerald-600" size={21} />
-              </div>
-              <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
-                {professionals.filter((p) => p.available).length}
-              </p>
-              <p className="mt-1 text-xs text-slate-400">Disponibilidade simulada</p>
-            </div>
-          </section>
-
-          {/* Categories */}
-          <section>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Categorias de serviços
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Escolha o tipo de serviço que procura.
-                </p>
+                <SlidersHorizontal
+                  size={20}
+                  className="text-slate-400"
+                />
               </div>
 
-              <SlidersHorizontal size={20} className="text-slate-400" />
-            </div>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {categories.map((category) => {
+                  const Icon = category.icon;
+                  const isSelected =
+                    selectedCategory === category.name;
 
-            <div className="mt-5 flex gap-3 overflow-x-auto pb-3">
-              {categories.map((category) => {
-                const Icon = category.icon;
-                const active = selectedCategory === category.name;
+                  return (
+                    <button
+                      key={category.name}
+                      type="button"
+                      onClick={() =>
+                        setSelectedCategory(category.name)
+                      }
+                      className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-700"
+                      }`}
+                    >
+                      <Icon size={18} />
+                      {category.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
 
-                return (
-                  <button
-                    key={category.name}
-                    onClick={() => setSelectedCategory(category.name)}
-                    className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition cursor-pointer ${
-                      active
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-slate-200 dark:border-slate-800 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
-                    }`}
-                  >
-                    <Icon size={18} />
-                    {category.name}
-                  </button>
-                  
-                );
-              })}
-            </div>
-          </section>
+            {/* PROFESSIONALS */}
+            <section>
+              <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    Profissionais
+                  </h2>
 
-          {/* Professionals */}
-          <section id="professionals">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Profissionais em destaque
-                </h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Conheça profissionais que podem ajudar você.
-                </p>
+                  <p className="mt-2 text-slate-500 dark:text-slate-400">
+                    {filteredProfessionals.length} resultado(s)
+                    encontrado(s).
+                  </p>
+                </div>
               </div>
 
-              <span className="text-sm font-medium text-blue-600">
-                {filteredProfessionals.length} resultado(s)
-              </span>
-            </div>
+              {filteredProfessionals.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                  {filteredProfessionals.map((professional) => {
+                    const isFavorite = favorites.includes(
+                      professional.id,
+                    );
 
-            {filteredProfessionals.length > 0 ? (
-              <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {filteredProfessionals.map((professional) => (
-                  <article
-                    key={professional.id}
-                    className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white transition hover:-translate-y-1 hover:shadow-lg"
-                  >
-                    <div className="relative">
-                      <img
-                        src={professional.image}
-                        alt={`Foto ilustrativa de ${professional.name}`}
-                        className="h-48 w-full object-cover"
-                      />
-
-                      <button
-                        onClick={() => toggleFavorite(professional.id)}
-                        aria-label={
-                          favorites.includes(professional.id)
-                            ? "Remover dos favoritos"
-                            : "Adicionar aos favoritos"
-                        }
-                        className={`absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition hover:scale-105 cursor-pointer ${
-                          favorites.includes(professional.id)
-                            ? "text-rose-500"
-                            : "text-slate-500 dark:text-slate-400"
-                        }`}
+                    return (
+                      <article
+                        key={professional.id}
+                        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
                       >
-                        <Heart
-                          size={20}
-                          fill={
-                            favorites.includes(professional.id)
-                              ? "currentColor"
-                              : "none"
-                          }
-                        />
-                      </button>
-
-                      <span
-                        className={`absolute bottom-4 left-4 rounded-full px-3 py-1 text-xs font-semibold ${
-                          professional.available
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
-                        {professional.available ? "Disponível" : "Indisponível"}
-                      </span>
-                    </div>
-
-                    <div className="p-5">
-                      <p className="text-sm font-medium text-blue-600">
-                        {professional.profession}
-                      </p>
-
-                      <h3 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                        {professional.name}
-                      </h3>
-
-                      <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500 dark:text-slate-400">
-                        {professional.description}
-                      </p>
-
-                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                        <div className="flex items-center gap-1 text-sm">
-                          <Star
-                            size={16}
-                            className="fill-amber-400 text-amber-400"
+                        {/* IMAGE */}
+                        <div className="relative">
+                          <img
+                            src={professional.image}
+                            alt={professional.name}
+                            className="h-56 w-full object-cover transition duration-500 group-hover:scale-105"
                           />
-                          <strong>{professional.rating.toFixed(1)}</strong>
-                          <span className="text-slate-400">
-                            ({professional.reviews})
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent" />
+
+                          <span
+                            className={`absolute left-4 top-4 rounded-full px-3 py-1.5 text-xs font-semibold ${
+                              professional.available
+                                ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400"
+                                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                            }`}
+                          >
+                            {professional.available
+                              ? "Disponível"
+                              : "Indisponível"}
                           </span>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              toggleFavorite(professional.id)
+                            }
+                            aria-label={
+                              isFavorite
+                                ? "Remover dos favoritos"
+                                : "Adicionar aos favoritos"
+                            }
+                            className={`absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition ${
+                              isFavorite
+                                ? "bg-rose-500 text-white"
+                                : "bg-white/90 text-slate-600 hover:bg-rose-50 hover:text-rose-500 dark:bg-slate-900/90 dark:text-slate-300 dark:hover:text-rose-400"
+                            }`}
+                          >
+                            <Heart
+                              size={20}
+                              className={
+                                isFavorite ? "fill-current" : ""
+                              }
+                            />
+                          </button>
                         </div>
 
-                        <div className="flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
-                          <MapPin size={15} className="text-blue-600" />
-                          {professional.distance}
+                        {/* CARD BODY */}
+                        <div className="p-5">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <h3 className="text-lg font-bold">
+                                {professional.name}
+                              </h3>
+
+                              <p className="mt-1 text-sm font-medium text-blue-600">
+                                {professional.profession}
+                              </p>
+                            </div>
+
+                            <div className="flex shrink-0 items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950/40">
+                              <Star
+                                size={16}
+                                className="fill-amber-400 text-amber-400"
+                              />
+
+                              <span className="text-sm font-semibold">
+                                {professional.rating}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                            <MapPin size={16} />
+                            {professional.location}
+                          </div>
+
+                          <p className="mt-4 line-clamp-2 min-h-10 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                            {professional.description}
+                          </p>
+
+                          <div className="mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>
+                              {professional.reviews} avaliações
+                            </span>
+
+                            <span className="rounded-lg bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                              {professional.category}
+                            </span>
+                          </div>
+
+                          <Link
+                            to={`/profissional/${professional.id}`}
+                            className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                          >
+                            Ver perfil
+                            <ArrowRight size={16} />
+                          </Link>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center dark:border-slate-700 dark:bg-slate-900">
+                  <Search
+                    size={40}
+                    className="mx-auto text-slate-400"
+                  />
+
+                  <h3 className="mt-4 text-lg font-bold">
+                    Nenhum profissional encontrado
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    Tente alterar a pesquisa ou selecionar
+                    outra categoria.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setSelectedCategory("Todos");
+                    }}
+                    className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  >
+                    Limpar filtros
+                  </button>
+                </div>
+              )}
+            </section>
+
+            {/* FAVORITES */}
+            <section
+              id="favoritos"
+              className="scroll-mt-24"
+            >
+              <div className="mb-6">
+                <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+                  <Heart
+                    size={22}
+                    className="text-rose-500"
+                  />
+                  Seus favoritos
+                </h2>
+
+                <p className="mt-2 text-slate-500 dark:text-slate-400">
+                  Profissionais que você salvou.
+                </p>
+              </div>
+
+              {favoriteProfessionals.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {favoriteProfessionals.map((professional) => (
+                    <div
+                      key={professional.id}
+                      className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+                    >
+                      <img
+                        src={professional.image}
+                        alt={professional.name}
+                        className="h-16 w-16 rounded-xl object-cover"
+                      />
+
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-semibold">
+                          {professional.name}
+                        </h3>
+
+                        <p className="text-sm text-blue-600">
+                          {professional.profession}
+                        </p>
+
+                        <div className="mt-1 flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
+                          <Star
+                            size={14}
+                            className="fill-amber-400 text-amber-400"
+                          />
+                          {professional.rating}
                         </div>
                       </div>
 
                       <button
+                        type="button"
                         onClick={() =>
-                          alert(
-                            `O perfil de ${professional.name} será implementado em uma próxima etapa.`
-                          )
+                          toggleFavorite(professional.id)
                         }
-                        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-50 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white cursor-pointer"
+                        className="rounded-lg p-2 text-rose-500 transition hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                        aria-label="Remover favorito"
                       >
-                        Ver perfil
-                        <ArrowRight size={17} />
+                        <Heart
+                          size={20}
+                          className="fill-current"
+                        />
                       </button>
                     </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-                <Search className="mx-auto text-slate-400" size={32} />
-                <h3 className="mt-3 font-semibold text-slate-800">
-                  Nenhum profissional encontrado
-                </h3>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                  Experimente alterar sua pesquisa ou categoria.
-                </p>
-                <button
-                  onClick={() => {
-                    setSearch("");
-                    setSelectedCategory("Todos");
-                  }}
-                  className="mt-4 font-semibold text-blue-600 hover:text-blue-700 cursor-pointer transition"
-                >
-                  Limpar filtros
-                </button>
-              </div>
-            )}
-          </section>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900">
+                  <Heart
+                    size={36}
+                    className="mx-auto text-slate-300 dark:text-slate-600"
+                  />
 
-          {/* Footer */}
-          <footer className="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-400">
-            © 2026 PertoDaki — Protótipo de aplicação Front-end.
-          </footer>
+                  <h3 className="mt-4 font-semibold">
+                    Você ainda não salvou favoritos
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    Clique no coração de um profissional para
+                    adicioná-lo à sua lista.
+                  </p>
+                </div>
+              )}
+            </section>
+
+            {/* CTA */}
+            <section className="overflow-hidden rounded-3xl border border-blue-100 bg-blue-50 p-6 dark:border-blue-900/50 dark:bg-blue-950/30 sm:p-8">
+              <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    Conhece um profissional?
+                  </h2>
+
+                  <p className="mt-3 max-w-xl text-slate-600 dark:text-slate-400">
+                    Compartilhe o PertoDaki e ajude profissionais
+                    locais a encontrar novos clientes.
+                  </p>
+                </div>
+
+                <Link
+                  to="/cadastro"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+                >
+                  Cadastrar profissional
+                  <ArrowRight size={18} />
+                </Link>
+              </div>
+            </section>
+
+            {/* FOOTER */}
+            <footer className="border-t border-slate-200 pt-6 dark:border-slate-800">
+              <div className="flex flex-col justify-between gap-3 text-sm text-slate-500 dark:text-slate-400 sm:flex-row sm:items-center">
+                <p>
+                  © {new Date().getFullYear()} PertoDaki.
+                </p>
+
+                <Link
+                  to="/"
+                  className="font-medium text-blue-600 transition hover:text-blue-700"
+                >
+                  Voltar para página inicial
+                </Link>
+              </div>
+            </footer>
+          </div>
         </main>
       </div>
+    </div>
+  );
+}
+
+/* SIDEBAR CONTENT */
+
+function SidebarContent() {
+  return (
+    <div className="flex flex-1 flex-col p-5">
+      <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        Menu principal
+      </p>
+
+      <nav className="space-y-2">
+        <SidebarLink
+          icon={<Home size={20} />}
+          label="Dashboard"
+          href="/cliente"
+          active
+        />
+
+        <SidebarLink
+          icon={<ClipboardList size={20} />}
+          label="Solicitações"
+          href="/cliente/solicitacoes"
+        />
+
+        <SidebarLink
+          icon={<Heart size={20} />}
+          label="Favoritos"
+          href="/cliente/favoritos"
+        />
+
+        <SidebarLink
+          icon={<Settings size={20} />}
+          label="Configurações"
+          href="/cliente/configuracoes"
+        />
+      </nav>
+
+      <div className="mt-auto pt-8">
+        <div className="rounded-2xl bg-blue-50 p-4 dark:bg-blue-950/40">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
+            <MapPin size={20} />
+          </div>
+
+          <h3 className="mt-3 font-semibold">
+            PertoDaki
+          </h3>
+
+          <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+            Conectando você a profissionais da sua região.
+          </p>
+
+          <Link
+            to="/"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+          >
+            Página inicial
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <Link
+          to="/login"
+          className="mt-5 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+        >
+          <LogOut size={20} />
+          Sair
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* SIDEBAR LINK */
+
+interface SidebarLinkProps {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+  active?: boolean;
+}
+
+function SidebarLink({
+  icon,
+  label,
+  href,
+  active = false,
+}: SidebarLinkProps) {
+  return (
+    <Link
+      to={href}
+      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+        active
+          ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+          : "text-slate-600 hover:bg-slate-100 hover:text-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+      }`}
+    >
+      {icon}
+      {label}
+    </Link>
+  );
+}
+
+/* STAT CARD */
+
+interface StatCardProps {
+  title: string;
+  value: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+function StatCard({
+  title,
+  value,
+  description,
+  icon,
+}: StatCardProps) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 transition-colors dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            {title}
+          </p>
+
+          <p className="mt-3 text-3xl font-bold tracking-tight">
+            {value}
+          </p>
+        </div>
+
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+          {icon}
+        </div>
+      </div>
+
+      <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+        {description}
+      </p>
     </div>
   );
 }
