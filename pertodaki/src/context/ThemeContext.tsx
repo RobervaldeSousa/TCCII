@@ -34,18 +34,19 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   });
 
   useEffect(() => {
-    const root = document.documentElement;
-
-    root.classList.toggle("dark", theme === "dark");
+    document.documentElement.classList.toggle(
+      "dark",
+      theme === "dark",
+    );
 
     localStorage.setItem("pertodaki_theme", theme);
   }, [theme]);
 
-  function toggleTheme() {
+  const toggleTheme = () => {
     setTheme((currentTheme) =>
       currentTheme === "light" ? "dark" : "light",
     );
-  }
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -58,7 +59,9 @@ export function useTheme() {
   const context = useContext(ThemeContext);
 
   if (!context) {
-    throw new Error("useTheme deve ser utilizado dentro de ThemeProvider");
+    throw new Error(
+      "useTheme deve ser utilizado dentro de ThemeProvider",
+    );
   }
 
   return context;

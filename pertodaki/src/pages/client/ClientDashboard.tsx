@@ -83,13 +83,13 @@ function ClientDashboard() {
         <button
           aria-label="Fechar menu"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden cursor-pointer"
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 dark:border-slate-800 bg-white transition-transform duration-300 lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -98,14 +98,14 @@ function ClientDashboard() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
               <MapPin size={23} />
             </div>
-            <span className="text-xl font-bold text-slate-900">
+            <span className="text-xl font-bold text-slate-900 cursor-pointer">
               Perto<span className="text-blue-600">Daki</span>
             </span>
           </Link>
 
           <button
             onClick={() => setSidebarOpen(false)}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden cursor-pointer"
             aria-label="Fechar menu"
           >
             <X size={21} />
@@ -118,10 +118,10 @@ function ClientDashboard() {
               <UserRound size={22} />
             </div>
             <div className="min-w-0">
-              <p className="truncate font-semibold text-slate-900">
+              <p className="truncate font-semibold text-slate-900 dark:text-slate-white">
                 Olá, visitante!
               </p>
-              <p className="text-xs text-slate-500">Área do cliente</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Área do cliente</p>
             </div>
           </div>
         </div>
@@ -139,7 +139,7 @@ function ClientDashboard() {
                 key={item.name}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition cursor-pointer ${
                   item.active
                     ? "bg-blue-600 text-white shadow-sm"
                     : "text-slate-600 hover:bg-slate-100 hover:text-blue-600"
@@ -155,7 +155,7 @@ function ClientDashboard() {
         <div className="border-t border-slate-100 p-5">
           <Link
             to="/"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600"
+            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition hover:bg-red-50 hover:text-red-600 cursor-pointer"
           >
             <LogOut size={19} />
             Voltar ao início
@@ -166,11 +166,11 @@ function ClientDashboard() {
       {/* Main */}
       <div className="min-h-screen lg:pl-72">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-5 backdrop-blur sm:px-8">
+        <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/95 px-5 backdrop-blur sm:px-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="rounded-xl p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+              className="rounded-xl p-2 text-slate-600 hover:bg-slate-100 lg:hidden cursor-pointer"
               aria-label="Abrir menu"
             >
               <Menu size={23} />
@@ -190,7 +190,7 @@ function ClientDashboard() {
             <ThemeToggle />
             <button
               aria-label="Notificações"
-              className="relative rounded-xl border border-slate-200 p-2.5 text-slate-500 hover:bg-slate-50"
+              className="relative rounded-xl border border-slate-200 dark:border-slate-800 p-2.5 text-slate-500 hover:bg-slate-50 cursor-pointer"
               onClick={() => alert("Notificações estarão disponíveis futuramente.")}
             >
               <Bell size={19} />
@@ -207,10 +207,10 @@ function ClientDashboard() {
           {/* Welcome */}
           <section>
             <p className="font-medium text-blue-600">PertoDaki</p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               Encontre o profissional ideal
             </h1>
-            <p className="mt-2 text-slate-500">
+            <p className="mt-2 text-slate-500 dark:text-slate-400">
               Descubra profissionais e serviços para facilitar seu dia a dia.
             </p>
           </section>
@@ -225,15 +225,15 @@ function ClientDashboard() {
                 Pesquise um serviço ou escolha uma categoria para encontrar profissionais.
               </p>
 
-              <div className="mt-6 flex flex-col gap-3 rounded-2xl bg-white p-2 sm:flex-row">
+              <div className="mt-6 flex flex-col gap-3 rounded-2xl bg-white p-2 sm:flex-row border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:placeholder:text-slate-500">
                 <div className="flex flex-1 items-center gap-3 px-3">
-                  <Search size={21} className="shrink-0 text-slate-400" />
+                  <Search size={21} className="shrink-0 text-slate-400 cursor-pointer" />
                   <input
                     type="search"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="Ex.: eletricista, encanador..."
-                    className="w-full min-w-0 py-3 text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                    className="w-full min-w-0 py-3 text-sm text-slate-800 dark:text-white outline-none placeholder:text-slate-400"
                   />
                 </div>
 
@@ -243,7 +243,7 @@ function ClientDashboard() {
                       .getElementById("professionals")
                       ?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
                 >
                   Buscar profissionais
                   <ArrowRight size={17} />
@@ -259,34 +259,34 @@ function ClientDashboard() {
 
           {/* Statistics */}
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white p-5 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Profissionais</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">Profissionais</span>
                 <Compass className="text-blue-600" size={21} />
               </div>
-              <p className="mt-3 text-2xl font-bold text-slate-900">
+              <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
                 {professionals.length}
               </p>
               <p className="mt-1 text-xs text-slate-400">Perfis demonstrativos</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white p-5 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Favoritos</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">Favoritos</span>
                 <Heart className="text-rose-500" size={21} />
               </div>
-              <p className="mt-3 text-2xl font-bold text-slate-900">
+              <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
                 {favorites.length}
               </p>
               <p className="mt-1 text-xs text-slate-400">Salvos nesta sessão</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white p-5 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Disponíveis</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">Disponíveis</span>
                 <UserRound className="text-emerald-600" size={21} />
               </div>
-              <p className="mt-3 text-2xl font-bold text-slate-900">
+              <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
                 {professionals.filter((p) => p.available).length}
               </p>
               <p className="mt-1 text-xs text-slate-400">Disponibilidade simulada</p>
@@ -297,7 +297,7 @@ function ClientDashboard() {
           <section>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Categorias de serviços
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
@@ -317,10 +317,10 @@ function ClientDashboard() {
                   <button
                     key={category.name}
                     onClick={() => setSelectedCategory(category.name)}
-                    className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition ${
+                    className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition cursor-pointer ${
                       active
                         ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
+                        : "border-slate-200 dark:border-slate-800 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
                     }`}
                   >
                     <Icon size={18} />
@@ -336,10 +336,10 @@ function ClientDashboard() {
           <section id="professionals">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Profissionais em destaque
                 </h2>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Conheça profissionais que podem ajudar você.
                 </p>
               </div>
@@ -354,7 +354,7 @@ function ClientDashboard() {
                 {filteredProfessionals.map((professional) => (
                   <article
                     key={professional.id}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-lg"
+                    className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white transition hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div className="relative">
                       <img
@@ -370,10 +370,10 @@ function ClientDashboard() {
                             ? "Remover dos favoritos"
                             : "Adicionar aos favoritos"
                         }
-                        className={`absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition hover:scale-105 ${
+                        className={`absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition hover:scale-105 cursor-pointer ${
                           favorites.includes(professional.id)
                             ? "text-rose-500"
-                            : "text-slate-500"
+                            : "text-slate-500 dark:text-slate-400"
                         }`}
                       >
                         <Heart
@@ -402,11 +402,11 @@ function ClientDashboard() {
                         {professional.profession}
                       </p>
 
-                      <h3 className="mt-1 text-lg font-bold text-slate-900">
+                      <h3 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
                         {professional.name}
                       </h3>
 
-                      <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500">
+                      <p className="mt-2 min-h-10 text-sm leading-5 text-slate-500 dark:text-slate-400">
                         {professional.description}
                       </p>
 
@@ -422,7 +422,7 @@ function ClientDashboard() {
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-1 text-sm text-slate-500">
+                        <div className="flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                           <MapPin size={15} className="text-blue-600" />
                           {professional.distance}
                         </div>
@@ -434,7 +434,7 @@ function ClientDashboard() {
                             `O perfil de ${professional.name} será implementado em uma próxima etapa.`
                           )
                         }
-                        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-50 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white"
+                        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-50 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white cursor-pointer"
                       >
                         Ver perfil
                         <ArrowRight size={17} />
@@ -449,7 +449,7 @@ function ClientDashboard() {
                 <h3 className="mt-3 font-semibold text-slate-800">
                   Nenhum profissional encontrado
                 </h3>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                   Experimente alterar sua pesquisa ou categoria.
                 </p>
                 <button
@@ -457,7 +457,7 @@ function ClientDashboard() {
                     setSearch("");
                     setSelectedCategory("Todos");
                   }}
-                  className="mt-4 font-semibold text-blue-600 hover:text-blue-700"
+                  className="mt-4 font-semibold text-blue-600 hover:text-blue-700 cursor-pointer transition"
                 >
                   Limpar filtros
                 </button>
@@ -466,7 +466,7 @@ function ClientDashboard() {
           </section>
 
           {/* Footer */}
-          <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+          <footer className="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-400">
             © 2026 PertoDaki — Protótipo de aplicação Front-end.
           </footer>
         </main>
