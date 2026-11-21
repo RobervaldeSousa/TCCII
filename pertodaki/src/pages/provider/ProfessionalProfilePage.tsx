@@ -175,7 +175,13 @@ const professional = professionals.find(
     }
   });
 
-  const [requestSent, setRequestSent] = useState(false);
+const [requestSent, setRequestSent] = useState(false);
+const [showRequestForm, setShowRequestForm] = useState(false);
+
+const [requestDescription, setRequestDescription] = useState("");
+const [requestAddress, setRequestAddress] = useState("");
+const [preferredDate, setPreferredDate] = useState("");
+const [requestNotes, setRequestNotes] = useState("");
 
   if (!professional) {
     return (
@@ -240,8 +246,53 @@ const toggleFavorite = () => {
 };
 
   const handleRequest = () => {
-    setRequestSent(true);
+  setShowRequestForm(true);
+};
+
+const handleSubmitRequest = (
+  event: React.FormEvent<HTMLFormElement>,
+) => {
+  event.preventDefault();
+
+  const newRequest = {
+    id: Date.now().toString(),
+    professionalId: professional.id,
+    professionalName: professional.name,
+    profession: professional.profession,
+    description: requestDescription,
+    address: requestAddress,
+    preferredDate,
+    notes: requestNotes,
+    status: "Pendente",
+    createdAt: new Date().toISOString(),
   };
+
+  try {
+    const savedRequests = localStorage.getItem("pertodaki_requests");
+
+    const requests = savedRequests
+      ? JSON.parse(savedRequests)
+      : [];
+
+    const updatedRequests = [...requests, newRequest];
+
+    localStorage.setItem(
+      "pertodaki_requests",
+      JSON.stringify(updatedRequests),
+    );
+
+    setRequestSent(true);
+    setShowRequestForm(false);
+
+    setRequestDescription("");
+    setRequestAddress("");
+    setPreferredDate("");
+    setRequestNotes("");
+  } catch (error) {
+    console.error("Erro ao salvar solicitação:", error);
+    alert("Não foi possível salvar sua solicitação.");
+  }
+};
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
@@ -425,6 +476,108 @@ const toggleFavorite = () => {
             </div>
           </div>
         )}
+
+        {/* REQUEST FORM */}
+{showRequestForm && (
+  <section className="rounded-2xl border border-blue-200 bg-white p-6 shadow-sm dark:border-blue-900 dark:bg-slate-900 sm:p-8">
+    <div className="mb-6">
+      <h2 className="text-xl font-bold">
+        Solicitar serviço
+      </h2>
+
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        Preencha as informações para enviar sua solicitação
+        a {professional.name}.
+      </p>
+    </div>
+
+    <form onSubmit={handleSubmitRequest} className="space-y-5">
+      <div>
+        <label className="mb-2 block text-sm font-semibold">
+          Descreva o serviço que precisa *
+        </label>
+
+        <textarea
+          required
+          value={requestDescription}
+          onChange={(event) =>
+            setRequestDescription(event.target.value)
+          }
+          placeholder="Explique o que precisa ser realizado..."
+          rows={4}
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:focus:ring-blue-900"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold">
+          Endereço do atendimento *
+        </label>
+
+        <input
+          required
+          type="text"
+          value={requestAddress}
+          onChange={(event) =>
+            setRequestAddress(event.target.value)
+          }
+          placeholder="Rua, número, bairro e cidade"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:focus:ring-blue-900"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold">
+          Data preferencial *
+        </label>
+
+        <input
+          required
+          type="date"
+          value={preferredDate}
+          min={new Date().toLocaleDateString("en-CA")}
+          onChange={(event) =>
+            setPreferredDate(event.target.value)
+          }
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:focus:ring-blue-900"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold">
+          Observações adicionais
+        </label>
+
+        <textarea
+          value={requestNotes}
+          onChange={(event) =>
+            setRequestNotes(event.target.value)
+          }
+          placeholder="Informações adicionais (opcional)"
+          rows={3}
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:focus:ring-blue-900"
+        />
+      </div>
+
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          onClick={() => setShowRequestForm(false)}
+          className="rounded-xl border border-slate-200 px-5 py-3 font-semibold text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
+        >
+          Enviar solicitação
+        </button>
+      </div>
+    </form>
+  </section>
+)}
 
         {/* ABOUT AND SERVICES */}
         <div className="grid gap-8 lg:grid-cols-3">
