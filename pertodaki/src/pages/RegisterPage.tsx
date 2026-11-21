@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Eye,
@@ -25,6 +25,7 @@ type RegisteredUser = {
 };
 
 function RegisterPage() {
+  const navigate = useNavigate();
   const [userType, setUserType] = useState<UserType>("client");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -107,17 +108,23 @@ function RegisterPage() {
 
       localStorage.setItem("pertodaki_users", JSON.stringify(users));
 
-      setSuccess(
-        "Cadastro simulado realizado com sucesso! Os dados foram armazenados localmente."
-      );
-
-      setName("");
-      setEmail("");
-      setPhone("");
-      setPassword("");
-      setConfirmPassword("");
-      setProfession("");
-      setDescription("");
+        // Redireciona o cliente para seu painel
+        if (userType === "client") {
+          navigate("/cliente");
+          return;
+        }
+        
+        setSuccess(
+          "Cadastro realizado com sucesso! Seu cadastro de prestador foi armazenado neste navegador. O painel do profissional ainda será        implementado."
+        );
+        
+        setName("");
+        setEmail("");
+        setPhone("");
+        setPassword("");
+        setConfirmPassword("");
+        setProfession("");
+        setDescription("");
     } catch {
       setError("Não foi possível armazenar os dados neste navegador.");
     }

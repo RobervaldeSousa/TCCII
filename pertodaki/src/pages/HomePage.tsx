@@ -137,25 +137,27 @@ function HomePage() {
 
             <Link
               to="/login"
-              className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 sm:block"
-            >
+              className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 sm:block">
               Entrar
+            </Link>
+            <Link
+              to="/cliente"
+              className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-slate-800 sm:block">
+              Área do Cliente
             </Link>
 
             <Link
               to="/cadastro"
-              className="hidden rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 sm:block"
-            >
+              className="hidden rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 sm:block">
               Criar conta
             </Link>
 
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition               hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition    hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
               aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
-              aria-expanded={mobileMenuOpen}
-            >
+              aria-expanded={mobileMenuOpen}>
               {mobileMenuOpen ? (
                 <span className="text-2xl leading-none">×</span>
               ) : (
@@ -172,42 +174,44 @@ function HomePage() {
               <a
                 href="#categorias"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300        dark:hover:bg-slate-800"
-              >
+                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
                 Categorias
               </a>
         
               <a
                 href="#profissionais"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300        dark:hover:bg-slate-800"
-              >
+                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
                 Profissionais
               </a>
         
               <a
                 href="#sobre"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300        dark:hover:bg-slate-800"
-              >
+                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
                 Sobre
               </a>
         
               <div className="my-2 border-t border-slate-200 dark:border-slate-800" />
+
+              <Link
+                to="/cliente"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-center text-sm font-semibold text-blue-600 transition hover:bg-blue-50   dark:text-blue-400 dark:hover:bg-slate-800">
+                Área do Cliente
+              </Link>
         
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100      dark:text-slate-200 dark:hover:bg-slate-800"
-              >
+                className="rounded-xl px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100      dark:text-slate-200 dark:hover:bg-slate-800">
                 Entrar
               </Link>
         
               <Link
                 to="/cadastro"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
-              >
+                className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-700">
                 Criar conta
               </Link>
         
@@ -243,8 +247,7 @@ function HomePage() {
             {/* SEARCH */}
             <form
               onSubmit={handleSearch}
-              className="mt-8 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-slate-200/40            transition-colors dark:border-slate-700 dark:bg-slate-800 dark:shadow-none sm:flex-row"
-            >
+              className="mt-8 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-slate-200/40   transition-colors dark:border-slate-700 dark:bg-slate-800 dark:shadow-none sm:flex-row">
               <div className="flex flex-1 items-center gap-3 px-3">
                 <Search className="shrink-0 text-slate-400" size={20} />
 
@@ -259,8 +262,7 @@ function HomePage() {
 
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition          hover:bg-blue-700"
-              >
+                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
                 <Search size={18} />
                 Buscar
               </button>
@@ -341,8 +343,7 @@ function HomePage() {
                 <button
                   key={category.name}
                   type="button"
-                  className="group flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
-                >
+                  className="group flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white dark:bg-blue-950 dark:text-blue-400 dark:group-hover:bg-blue-600 dark:group-hover:text-white">
                     <Icon size={26} />
                   </div>
@@ -360,8 +361,7 @@ function HomePage() {
       {/* PROFESSIONALS */}
       <section
         id="profissionais"
-        className="bg-slate-50 py-20 transition-colors dark:bg-slate-900"
-      >
+        className="bg-slate-50 py-20 transition-colors dark:bg-slate-900">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
           <div className="mb-12 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
@@ -389,8 +389,7 @@ function HomePage() {
                     setSearchTerm("");
                     setSearchQuery("");
                   }}
-                  className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
-                >
+                  className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700">
                   Limpar pesquisa
                 </button>
               )}
@@ -398,8 +397,7 @@ function HomePage() {
 
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 font-semibold text-blue-600 transition hover:text-blue-700"
-            >
+              className="inline-flex items-center gap-2 font-semibold text-blue-600 transition hover:text-blue-700">
               Explorar profissionais
               <ArrowRight size={18} />
             </Link>
@@ -410,14 +408,12 @@ function HomePage() {
               filteredProfessionals.map((professional) => (
               <article
                 key={professional.name}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950"
-              >
+                className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950">
                 <div className="relative">
                   <img
                     src={professional.image}
                     alt={professional.profession}
-                    className="h-56 w-full object-cover"
-                  />
+                    className="h-56 w-full object-cover"/>
 
                   <div className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-green-600 shadow dark:bg-slate-900">
                     Disponível
@@ -439,8 +435,7 @@ function HomePage() {
                     <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950/40">
                       <Star
                         size={16}
-                        className="fill-amber-400 text-amber-400"
-                      />
+                        className="fill-amber-400 text-amber-400"/>
 
                       <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                         {professional.rating}
@@ -460,8 +455,7 @@ function HomePage() {
 
                   <Link
                     to="/login"
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-blue-600 px-4 py-3 text-sm font-semibold text-blue-600 transition hover:bg-blue-600 hover:text-white dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white"
-                  >
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-blue-600 px-4 py-3 text-sm font-semibold text-blue-600 transition hover:bg-blue-600 hover:text-white dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white">
                     Ver profissional
                     <ArrowRight size={16} />
                   </Link>
@@ -472,8 +466,7 @@ function HomePage() {
             <div className="col-span-full rounded-2xl border border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-950">
               <Search
                 size={36}
-                className="mx-auto text-slate-400"
-              />
+                className="mx-auto text-slate-400"/>
 
               <h3 className="mt-4 text-lg font-bold">
                 Nenhum profissional encontrado
@@ -491,8 +484,7 @@ function HomePage() {
       {/* ABOUT */}
       <section
         id="sobre"
-        className="py-20 transition-colors"
-      >
+        className="py-20 transition-colors">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
@@ -571,8 +563,7 @@ function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=85"
                 alt="Pessoas trabalhando e colaborando"
-                className="h-[400px] w-full object-cover"
-              />
+                className="h-[400px] w-full object-cover"/>
             </div>
           </div>
         </div>
@@ -596,8 +587,7 @@ function HomePage() {
 
             <Link
               to="/cadastro"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-4 font-semibold text-blue-600 transition hover:bg-blue-50"
-            >
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-4 font-semibold text-blue-600 transition hover:bg-blue-50">
               Quero ser profissional
               <ArrowRight size={18} />
             </Link>
@@ -626,15 +616,13 @@ function HomePage() {
           <div className="flex gap-6">
             <Link
               to="/login"
-              className="text-sm text-slate-600 transition hover:text-blue-600 dark:text-slate-400"
-            >
+              className="text-sm text-slate-600 transition hover:text-blue-600 dark:text-slate-400">
               Entrar
             </Link>
 
             <Link
               to="/cadastro"
-              className="text-sm text-slate-600 transition hover:text-blue-600 dark:text-slate-400"
-            >
+              className="text-sm text-slate-600 transition hover:text-blue-600 dark:text-slate-400">
               Cadastrar
             </Link>
           </div>
