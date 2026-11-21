@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import {
   Search,
   MapPin,
@@ -58,6 +58,37 @@ const professionals = [
 ];
 
 function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  
+    setSearchQuery(searchTerm.trim());
+  
+    document.getElementById("profissionais")?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+  
+  const normalizeText = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  
+  const filteredProfessionals = professionals.filter((professional) => {
+    const query = normalizeText(searchQuery);
+  
+    return (
+      normalizeText(professional.name).includes(query) ||
+      normalizeText(professional.profession).includes(query) ||
+      normalizeText(professional.location).includes(query)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
 
@@ -120,13 +151,69 @@ function HomePage() {
 
             <button
               type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-200 md:hidden"
-              aria-label="Menu"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition               hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
+              aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={mobileMenuOpen}
             >
-              <Menu size={21} />
+              {mobileMenuOpen ? (
+                <span className="text-2xl leading-none">×</span>
+              ) : (
+                <Menu size={21} />
+              )}
             </button>
           </div>
         </div>
+        {/* MOBILE MENU */}
+        {mobileMenuOpen && (
+          <div className="border-t border-slate-200 bg-white px-4 py-5 dark:border-slate-800 dark:bg-slate-950 md:hidden">
+            <nav className="flex flex-col gap-2">
+        
+              <a
+                href="#categorias"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300        dark:hover:bg-slate-800"
+              >
+                Categorias
+              </a>
+        
+              <a
+                href="#profissionais"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300        dark:hover:bg-slate-800"
+              >
+                Profissionais
+              </a>
+        
+              <a
+                href="#sobre"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300        dark:hover:bg-slate-800"
+              >
+                Sobre
+              </a>
+        
+              <div className="my-2 border-t border-slate-200 dark:border-slate-800" />
+        
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-100      dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Entrar
+              </Link>
+        
+              <Link
+                to="/cadastro"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
+              >
+                Criar conta
+              </Link>
+        
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* HERO */}
@@ -154,25 +241,30 @@ function HomePage() {
             </p>
 
             {/* SEARCH */}
-            <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-slate-200/40 transition-colors dark:border-slate-700 dark:bg-slate-800 dark:shadow-none sm:flex-row">
+            <form
+              onSubmit={handleSearch}
+              className="mt-8 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-slate-200/40            transition-colors dark:border-slate-700 dark:bg-slate-800 dark:shadow-none sm:flex-row"
+            >
               <div className="flex flex-1 items-center gap-3 px-3">
                 <Search className="shrink-0 text-slate-400" size={20} />
 
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Qual serviço você precisa?"
                   className="w-full bg-transparent py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
                 />
               </div>
 
               <button
-                type="button"
-                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+                type="submit"
+                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition          hover:bg-blue-700"
               >
                 <Search size={18} />
                 Buscar
               </button>
-            </div>
+            </form>
 
             <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">
               <span>Popular:</span>
@@ -279,12 +371,29 @@ function HomePage() {
               </span>
 
               <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                Profissionais em destaque
+                {searchQuery
+                  ? `Resultados para "${searchQuery}"`
+                  : "Profissionais em destaque"}
               </h2>
-
+              
               <p className="mt-4 text-slate-600 dark:text-slate-400">
-                Conheça alguns profissionais disponíveis.
+                {searchQuery
+                  ? `${filteredProfessionals.length} profissional(is) encontrado(s).`
+                  : "Conheça alguns profissionais disponíveis."}
               </p>
+              
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSearchQuery("");
+                  }}
+                  className="mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  Limpar pesquisa
+                </button>
+              )}
             </div>
 
             <Link
@@ -297,7 +406,8 @@ function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {professionals.map((professional) => (
+            {filteredProfessionals.length > 0 ? (
+              filteredProfessionals.map((professional) => (
               <article
                 key={professional.name}
                 className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950"
@@ -357,7 +467,23 @@ function HomePage() {
                   </Link>
                 </div>
               </article>
-            ))}
+                        ))
+          ) : (
+            <div className="col-span-full rounded-2xl border border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-950">
+              <Search
+                size={36}
+                className="mx-auto text-slate-400"
+              />
+
+              <h3 className="mt-4 text-lg font-bold">
+                Nenhum profissional encontrado
+              </h3>
+
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                Tente pesquisar por outro serviço ou nome de profissional.
+              </p>
+            </div>
+          )}
           </div>
         </div>
       </section>
