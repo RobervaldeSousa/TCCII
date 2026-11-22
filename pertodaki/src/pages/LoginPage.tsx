@@ -89,10 +89,7 @@ function LoginPage() {
       navigate("/cliente");
       return;
     }
-
-    setSuccess(
-      "Login validado com sucesso! O painel do prestador ainda está em desenvolvimento."
-    );
+    navigate("/prestador");
   } catch {
   setError("Não foi possível verificar os dados armazenados.");
   }
