@@ -1,4 +1,5 @@
-
+import type { FormEvent } from "react";
+import type { ServiceRequest } from "../../types/serviceRequest";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -249,36 +250,60 @@ const toggleFavorite = () => {
   setShowRequestForm(true);
 };
 
-const handleSubmitRequest = (
-  event: React.FormEvent<HTMLFormElement>,
-) => {
+const handleSubmitRequest = (event: FormEvent<HTMLFormElement>) => {
   event.preventDefault();
 
-  const newRequest = {
-    id: Date.now().toString(),
-    professionalId: professional.id,
-    professionalName: professional.name,
-    profession: professional.profession,
-    description: requestDescription,
-    address: requestAddress,
-    preferredDate,
-    notes: requestNotes,
-    status: "Pendente",
-    createdAt: new Date().toISOString(),
-  };
+  const storedSession = localStorage.getItem("pertodaki_session");
+
+  if (!storedSession) {
+    alert("Faça login como cliente antes de solicitar um serviço.");
+    return;
+  }
 
   try {
+    const session = JSON.parse(storedSession);
+
+    if (session.userType !== "client") {
+      alert("Somente clientes podem solicitar serviços.");
+      return;
+    }
+
+    const storedUsers = localStorage.getItem("pertodaki_users");
+    const registeredUsers = storedUsers ? JSON.parse(storedUsers) : [];
+
+    const providerUser = registeredUsers.find(
+      (user: { name: string; email: string; userType: string; profession?: string }) =>
+        user.userType === "provider" &&
+        (user.name.trim().toLowerCase() === professional.name.trim().toLowerCase() ||
+          user.profession?.trim().toLowerCase() === professional.profession.trim().toLowerCase())
+    );
+
+    const newRequest: ServiceRequest = {
+      id: crypto.randomUUID(),
+      clientName: session.name,
+      clientEmail: session.email,
+      providerName: professional.name,
+      providerEmail: providerUser?.email ?? "",
+      professionalId: professional.id,
+      serviceName: professional.profession,
+      description: requestDescription.trim(),
+      notes: requestNotes.trim(),
+      preferredDate: preferredDate,
+      preferredTime: "",
+      address: requestAddress.trim(),
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    };
+
     const savedRequests = localStorage.getItem("pertodaki_requests");
 
-    const requests = savedRequests
+    const requests: ServiceRequest[] = savedRequests
       ? JSON.parse(savedRequests)
       : [];
 
-    const updatedRequests = [...requests, newRequest];
-
     localStorage.setItem(
       "pertodaki_requests",
-      JSON.stringify(updatedRequests),
+      JSON.stringify([...requests, newRequest]),
     );
 
     setRequestSent(true);

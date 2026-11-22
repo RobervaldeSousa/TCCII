@@ -14,6 +14,7 @@ export type ServiceRequest = {
   professionalId: number;
   serviceName: string;
   description: string;
+  notes?: string;
   preferredDate: string;
   preferredTime: string;
   address: string;
