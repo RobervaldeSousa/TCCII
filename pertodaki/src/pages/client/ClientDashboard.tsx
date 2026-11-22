@@ -1,5 +1,5 @@
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   MapPin,
@@ -25,6 +25,7 @@ import {
 
 import { Link } from "react-router-dom";
 import { professionals } from "../../data/professionals";
+import type { Professional } from "../../data/professionals";
 import ThemeToggle from "../../components/ui/ThemeToggle";
 
 const categories = [
@@ -37,10 +38,92 @@ const categories = [
   { name: "Reparos", icon: Wrench },
 ];
 
+type RegisteredUser = {
+  name: string;
+  email: string;
+  userType: "client" | "provider";
+  profession?: string;
+  description?: string;
+};
+
 function ClientDashboard() {
+  const [allProfessionals, setAllProfessionals] =
+  useState<Professional[]>(professionals);
+
+  useEffect(() => {
+    try {
+      const storedUsers = localStorage.getItem("pertodaki_users");
+
+      if (!storedUsers) return;
+
+      const users: RegisteredUser[] = JSON.parse(storedUsers);
+
+      const registeredProviders: Professional[] = users
+        .filter(
+          (user) =>
+            user.userType === "provider" &&
+            user.email &&
+            user.profession
+        )
+        .map((user) => {
+          const profession = user.profession!.trim();
+          const normalizedProfession = profession.toLowerCase();
+
+          let category = "Reparos";
+
+          if (normalizedProfession.includes("eletric")) {
+            category = "Eletricista";
+          } else if (normalizedProfession.includes("encan")) {
+            category = "Encanador";
+          } else if (
+            normalizedProfession.includes("pint") ||
+            normalizedProfession.includes("pintor")
+          ) {
+            category = "Pintor";
+          } else if (
+            normalizedProfession.includes("informática") ||
+            normalizedProfession.includes("informatica") ||
+            normalizedProfession.includes("computador") ||
+            normalizedProfession.includes("técnico") ||
+            normalizedProfession.includes("tecnico")
+          ) {
+            category = "Informática";
+          } else if (
+            normalizedProfession.includes("jardineir") ||
+            normalizedProfession.includes("jardinagem")
+          ) {
+            category = "Jardinagem";
+          }
+
+          return {
+            id: `provider:${user.email.toLowerCase()}`,
+            email: user.email.toLowerCase(),
+            name: user.name,
+            profession,
+            category,
+            rating: 0,
+            reviews: 0,
+            distance: "Não informada",
+            location: "Localização não informada",
+            image: professionals[0].image,
+            description:
+              user.description?.trim() ||
+              "Profissional cadastrado no PertoDaki.",
+            available: true,
+          };
+        });
+
+      setAllProfessionals([
+        ...professionals,
+        ...registeredProviders,
+      ]);
+    } catch (error) {
+      console.error("Erro ao carregar prestadores:", error);
+    }
+  }, []);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [favorites, setFavorites] = useState<number[]>(() => {
+  const [favorites, setFavorites] = useState<Professional["id"][]>(() => {
   const savedFavorites = localStorage.getItem("pertodaki_favorites");
 
   try {
@@ -52,7 +135,7 @@ function ClientDashboard() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const filteredProfessionals = useMemo(() => {
-    return professionals.filter((professional) => {
+    return allProfessionals.filter((professional) => {
       const matchesCategory =
         selectedCategory === "Todos" ||
         professional.category === selectedCategory;
@@ -67,9 +150,9 @@ function ClientDashboard() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [search, selectedCategory]);
+  }, [allProfessionals, search, selectedCategory]);
 
-  const toggleFavorite = (id: number) => {
+  const toggleFavorite = (id: Professional["id"]) => {
   setFavorites((currentFavorites) => {
     const updatedFavorites = currentFavorites.includes(id)
       ? currentFavorites.filter((favorite) => favorite !== id)
@@ -84,13 +167,13 @@ function ClientDashboard() {
   });
 };
 
-  const favoriteProfessionals = professionals.filter((professional) =>
-    favorites.includes(professional.id),
-  );
+  const favoriteProfessionals = allProfessionals.filter((professional) =>
+  favorites.includes(professional.id),
+);
 
-  const availableProfessionals = professionals.filter(
-    (professional) => professional.available,
-  );
+const availableProfessionals = allProfessionals.filter(
+  (professional) => professional.available,
+);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
@@ -252,7 +335,7 @@ function ClientDashboard() {
 
               <StatCard
                 title="Profissionais"
-                value={String(professionals.length)}
+                value={String(allProfessionals.length)}
                 description="Cadastrados na plataforma"
                 icon={<UserRound size={22} />}
               />

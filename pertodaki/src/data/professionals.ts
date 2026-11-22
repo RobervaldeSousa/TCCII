@@ -1,6 +1,7 @@
 
 export type Professional = {
-    id: number;
+    id: string | number;
+    email?: string;
     name: string;
     profession: string;
     category: string;
