@@ -11,7 +11,7 @@ export type ServiceRequest = {
   clientEmail: string;
   providerName: string;
   providerEmail: string;
-  professionalId: number;
+  professionalId: string | number;
   serviceName: string;
   description: string;
   notes?: string;

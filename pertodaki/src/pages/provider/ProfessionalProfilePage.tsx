@@ -18,6 +18,13 @@ import {
 
 import { professionals } from "../../data/professionals";
 import ThemeToggle from "../../components/ui/ThemeToggle";
+type RegisteredUser = {
+  name: string;
+  email: string;
+  userType: "client" | "provider";
+  profession?: string;
+  description?: string;
+};
 
 const additionalProfileData: Record<
   string,
@@ -157,9 +164,42 @@ const additionalProfileData: Record<
 function ProfessionalProfilePage() {
   const { id } = useParams();
 
-const professional = professionals.find(
-  (item) => item.id === Number(id),
-);
+const storedUsers = localStorage.getItem("pertodaki_users");
+
+let registeredUsers: RegisteredUser[] = [];
+
+try {
+  registeredUsers = storedUsers ? JSON.parse(storedUsers) : [];
+} catch {
+  registeredUsers = [];
+}
+
+const professional =
+  professionals.find((item) => String(item.id) === id) ??
+  registeredUsers
+    .filter(
+      (user) =>
+        user.userType === "provider" &&
+        user.email &&
+        user.profession
+    )
+    .map((user) => ({
+      id: `provider:${user.email.toLowerCase()}`,
+      email: user.email.toLowerCase(),
+      name: user.name,
+      profession: user.profession!,
+      category: user.profession!,
+      rating: 0,
+      reviews: 0,
+      distance: "Não informada",
+      location: "Localização não informada",
+      image: professionals[0].image,
+      description:
+        user.description?.trim() ||
+        "Profissional cadastrado no PertoDaki.",
+      available: true,
+    }))
+    .find((item) => item.id === id);
 
   const [favorite, setFavorite] = useState(() => {
     const savedFavorites = localStorage.getItem(
@@ -169,8 +209,12 @@ const professional = professionals.find(
     if (!savedFavorites) return false;
 
     try {
-      const parsedFavorites: number[] = JSON.parse(savedFavorites);
-        return parsedFavorites.includes(Number(id));
+      const parsedFavorites: (string | number)[] =
+  JSON.parse(savedFavorites);
+
+return parsedFavorites.some(
+  (favoriteId) => String(favoriteId) === id,
+);
     } catch {
       return false;
     }
@@ -209,15 +253,19 @@ const [requestNotes, setRequestNotes] = useState("");
   }
 
   const profileDetails =
-    additionalProfileData[professional.id] ??
-    additionalProfileData["1"];
+  additionalProfileData[String(professional.id)] ?? {
+    experience: "Não informada",
+    services: [professional.profession],
+    portfolio: [],
+    reviewsList: [],
+  };
 
 const toggleFavorite = () => {
   const savedFavorites = localStorage.getItem(
     "pertodaki_favorites",
   );
 
-  let favoritesList: number[] = [];
+  let favoritesList: (string | number)[] = [];
 
   try {
     favoritesList = savedFavorites
@@ -227,23 +275,24 @@ const toggleFavorite = () => {
     favoritesList = [];
   }
 
-  const updatedFavorites = favorite
+  const alreadyFavorite = favoritesList.some(
+    (favoriteId) =>
+      String(favoriteId) === String(professional.id),
+  );
+
+  const updatedFavorites = alreadyFavorite
     ? favoritesList.filter(
-        (favoriteId) => favoriteId !== professional.id,
+        (favoriteId) =>
+          String(favoriteId) !== String(professional.id),
       )
-    : [
-        ...favoritesList.filter(
-          (favoriteId) => favoriteId !== professional.id,
-        ),
-        professional.id,
-      ];
+    : [...favoritesList, professional.id];
 
   localStorage.setItem(
     "pertodaki_favorites",
     JSON.stringify(updatedFavorites),
   );
 
-  setFavorite(!favorite);
+  setFavorite(!alreadyFavorite);
 };
 
   const handleRequest = () => {
@@ -268,22 +317,14 @@ const handleSubmitRequest = (event: FormEvent<HTMLFormElement>) => {
       return;
     }
 
-    const storedUsers = localStorage.getItem("pertodaki_users");
-    const registeredUsers = storedUsers ? JSON.parse(storedUsers) : [];
-
-    const providerUser = registeredUsers.find(
-      (user: { name: string; email: string; userType: string; profession?: string }) =>
-        user.userType === "provider" &&
-        (user.name.trim().toLowerCase() === professional.name.trim().toLowerCase() ||
-          user.profession?.trim().toLowerCase() === professional.profession.trim().toLowerCase())
-    );
+    
 
     const newRequest: ServiceRequest = {
       id: crypto.randomUUID(),
       clientName: session.name,
       clientEmail: session.email,
       providerName: professional.name,
-      providerEmail: providerUser?.email ?? "",
+      providerEmail: professional.email ?? "",
       professionalId: professional.id,
       serviceName: professional.profession,
       description: requestDescription.trim(),
