@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Eye,
@@ -13,7 +13,19 @@ import {
 
 type UserType = "client" | "provider";
 
+type RegisteredUser = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  userType: UserType;
+  profession?: string;
+  description?: string;
+  createdAt: string;
+};
+
 function LoginPage() {
+  const navigate = useNavigate();
   const [userType, setUserType] = useState<UserType>("client");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,32 +34,69 @@ function LoginPage() {
   const [success, setSuccess] = useState("");
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  event.preventDefault();
 
-    setError("");
-    setSuccess("");
+  setError("");
+  setSuccess("");
 
-    if (!email.trim() || !password.trim()) {
-      setError("Preencha todos os campos.");
+  if (!email.trim() || !password.trim()) {
+    setError("Preencha todos os campos.");
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setError("Informe um e-mail válido.");
+    return;
+  }
+
+  if (password.length < 6) {
+    setError("A senha deve conter pelo menos 6 caracteres.");
+    return;
+  }
+
+  try {
+    const storedUsers = localStorage.getItem("pertodaki_users");
+
+    const users: RegisteredUser[] = storedUsers
+      ? JSON.parse(storedUsers)
+      : [];
+
+    const user = users.find(
+      (registeredUser) =>
+        registeredUser.email.toLowerCase() === email.trim().toLowerCase() &&
+        registeredUser.password === password &&
+        registeredUser.userType === userType
+    );
+
+    if (!user) {
+      setError(
+        "E-mail, senha ou tipo de usuário incorretos. Verifique seus dados."
+      );
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Informe um e-mail válido.");
-      return;
-    }
+    // Armazena uma sessão demonstrativa sem salvar a senha
+    const session = {
+      name: user.name,
+      email: user.email,
+      userType: user.userType,
+      profession: user.profession,
+    };
 
-    if (password.length < 6) {
-      setError("A senha deve conter pelo menos 6 caracteres.");
+    localStorage.setItem("pertodaki_session", JSON.stringify(session));
+
+    if (user.userType === "client") {
+      navigate("/cliente");
       return;
     }
 
     setSuccess(
-      userType === "client"
-        ? "Validação simulada concluída! Perfil de cliente selecionado."
-        : "Validação simulada concluída! Perfil de prestador selecionado."
+      "Login validado com sucesso! O painel do prestador ainda está em desenvolvimento."
     );
+  } catch {
+  setError("Não foi possível verificar os dados armazenados.");
   }
+}
 
   return (
     <main className="min-h-screen bg-slate-50">
