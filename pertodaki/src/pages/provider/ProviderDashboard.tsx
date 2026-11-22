@@ -1,4 +1,4 @@
-
+import ProviderServices from "./ProviderServices";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Briefcase, User, Settings, Clock } from "lucide-react";
@@ -184,6 +184,8 @@ function ProviderDashboard() {
             </p>
           </div>
         </section>
+        
+        <ProviderServices email={session.email} />
       </main>
     </div>
   );
